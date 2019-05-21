@@ -26,6 +26,4 @@ urls = [
 ]
 
 
-
-
 {:ok, pid} = Scraper.start_link(urls: urls)
