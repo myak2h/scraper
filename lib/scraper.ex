@@ -98,6 +98,8 @@ defmodule Scraper do
 
     pages
     |> Enum.each(&ChromeRemoteInterface.Session.close_page(server, &1["id"]))
+
+    {:ok, pid}
   end
 
   defp scrap(url) do
