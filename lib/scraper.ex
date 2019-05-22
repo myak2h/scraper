@@ -36,6 +36,16 @@ defmodule Scraper do
   end
 
   @impl true
+  def handle_call(:stop_tabs, _from, %{tabs: tabs} = state) do
+    tabs
+    |> Enum.each(fn tab ->
+      ChromeRemoteInterface.PageSession.stop(tab.pid)
+    end)
+
+    {:reply, :ok, %{state | tabs: []}}
+  end
+
+  @impl true
   def handle_cast(
         {:add_tab, id},
         %{server: server, tabs: tabs} = state
@@ -52,6 +62,8 @@ defmodule Scraper do
       end
 
     {:ok, pid} = ChromeRemoteInterface.PageSession.start_link(page)
+
+    ChromeRemoteInterface.RPC.Page.enable(pid)
 
     tab = %{id: id, free: true, pid: pid}
 
@@ -92,6 +104,8 @@ defmodule Scraper do
         |> Enum.map(&Task.await(&1, :infinity))
     })
 
+    GenServer.call(__MODULE__, :stop_tabs, :infinity)
+
     {:ok, pid}
   end
 
@@ -108,7 +122,6 @@ defmodule Scraper do
         receive do
           {:chrome_remote_interface, "Page.loadEventFired", _message} ->
             ChromeRemoteInterface.PageSession.unsubscribe(tab.pid, "Page.loadEventFired")
-            ChromeRemoteInterface.RPC.Page.disable(tab.pid)
 
             {:ok, %{"result" => %{"root" => %{"nodeId" => root_node_id}}}} =
               ChromeRemoteInterface.RPC.DOM.getDocument(tab.pid)
