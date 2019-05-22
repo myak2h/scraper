@@ -25,5 +25,4 @@ urls = [
   "https://www.coolblue.nl/product/788988/apple-magic-keyboard-met-numeriek-toetsenblok-qwerty.html"
 ]
 
-
-{:ok, pid} = Scraper.start_link(urls: urls)
+Scraper.start_link(urls: urls)
