@@ -6,7 +6,7 @@
 ```elixir
 mix deps.get
 ```
-set urls in priv/test.exs
+set urls in priv/test.exs and then
 ```elixir
 mix run priv/test.exs
 ```
