@@ -8,7 +8,7 @@ mix deps.get
 ```
 set urls in priv/test.exs
 ```elixir
-mix run priv/test
+mix run priv/test.exs
 ```
 
 or do 
