@@ -36,16 +36,6 @@ defmodule Scraper do
   end
 
   @impl true
-  def handle_call(:stop_tabs, _from, %{tabs: tabs} = state) do
-    tabs
-    |> Enum.each(fn tab ->
-      ChromeRemoteInterface.PageSession.stop(tab.pid)
-    end)
-
-    {:reply, :ok, %{state | tabs: []}}
-  end
-
-  @impl true
   def handle_cast(
         {:add_tab, id},
         %{server: server, tabs: tabs} = state
@@ -104,9 +94,10 @@ defmodule Scraper do
         |> Enum.map(&Task.await(&1, :infinity))
     })
 
-    GenServer.call(__MODULE__, :stop_tabs, :infinity)
+    {:ok, pages} = ChromeRemoteInterface.Session.list_pages(server)
 
-    {:ok, pid}
+    pages
+    |> Enum.each(&ChromeRemoteInterface.Session.close_page(server, &1["id"]))
   end
 
   defp scrap(url) do
