@@ -19,7 +19,7 @@ iex -S mix
 and then
 
 ```elixir
-url = [ list of urls ]
+urls = [ list of urls ]
 Scraper.start_link(urls: urls)
 ```
 
